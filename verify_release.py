@@ -47,8 +47,8 @@ CONFIG: Dict = {
         "report_file": "verification_report.txt",
     },
     "TARGET_RESOURCE_CONFIG": {
-        "target_repo": "harmony",  # 请改为实际目标仓库名
-        "branches": {"release_branch": "release-v1.1.0", "base_branch": "main"},
+        "target_repo": "my-project",  # 请改为实际目标仓库名
+        "branches": {"release_branch": "main", "base_branch": "main"},
     },
     "FILE_VERIFICATION_CONFIG": {
         "required_files": [
