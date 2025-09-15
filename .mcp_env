@@ -1,4 +1,4 @@
 # .mcp_env.template
 # Rename to .mcp_env and fill in values locally (DO NOT commit real .mcp_env to public repos)
-MCP_GITHUB_TOKEN=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
+MCP_GITHUB_TOKEN=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
 GITHUB_EVAL_ORG=803393dfh-blip
