@@ -368,20 +368,33 @@ def run_verification(cfg: Dict) -> bool:
         pr_number = pr.get("number")
         pr_title = pr.get("title", "").replace("\n", " ")
         pr_line = f"release PR: #{pr_number}  title: {pr_title}"
-        # Step 5 & 6: merge target and method
-        # Verify merge target
+
+        # Step 5: verify merge target (print the step header)
+        print(f"\n{CONFIG['VERIFICATION_FLOW_CONFIG']['step_number_format']['pr_merge_target']} 验证 PR 合并目标...")
         success, pr_detail = _call_github_api(f"pulls/{pr_number}", headers, org, repo)
         if success and pr_detail:
             actual_base = pr_detail.get("base", {}).get("ref")
             expected_base = CONFIG['TARGET_RESOURCE_CONFIG']['branches']['base_branch']
-            # if target mismatch, set fail later
-            if actual_base != expected_base:
+            if actual_base == expected_base:
+                print(f"[合并目标验证通过] PR #{pr_number} 合并目标为「{actual_base}」")
+            else:
                 print(f"[合并目标错误] PR #{pr_number} 合并到「{actual_base}」，预期「{expected_base}」", file=sys.stderr)
-        # verify merge method
+        else:
+            print(f"[合并目标检查失败] 无法获取 PR #{pr_number} 详情", file=sys.stderr)
+
+        # Step 6: verify merge method (print the step header)
+        print(f"\n{CONFIG['VERIFICATION_FLOW_CONFIG']['step_number_format']['merge_method']} 验证合并方法...")
         method_str, parents = _verify_squash_merge(pr_number, headers, org, repo)
+        if method_str == "Squash and Merge":
+            print(f"[合并方式验证通过] 方法: {method_str}  parents: {parents}")
+        elif method_str == "OTHER":
+            print(f"[合并方式不符合] 实际方法: {method_str}  parents: {parents}", file=sys.stderr)
+        else:
+            print(f"[合并方式检查失败] 未找到合并提交或无法判断", file=sys.stderr)
+
         merge_line = f"merge method: {method_str}  parents: {parents}"
     else:
-        # pr not found -> failure
+        # pr not found -> failure (we still didn't perform steps 5/6)
         pass
 
     # decide overall PASS/FAIL
@@ -411,19 +424,18 @@ def run_verification(cfg: Dict) -> bool:
     if out_dir:
         _write_report(out_dir, lines)
 
-    # ---- 新增：当验证通过时在控制台打印验证信息（report 内容） ----
+    # ---- 当验证通过时在控制台打印验证信息（report 内容） ----
     if overall_ok:
         print("\n" + sep)
-        # success message from config (if any)
         success_msg = CONFIG['VERIFICATION_FLOW_CONFIG'].get('success_message')
         if success_msg:
             print(success_msg)
-        # print the report lines to stdout
         for line in lines:
             print(line)
         print(sep + "\n")
 
     return overall_ok
+
 
 
 if __name__ == "__main__":
