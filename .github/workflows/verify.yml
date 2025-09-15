@@ -1,1 +1,38 @@
+name: Run Release Verification
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '**.py'
+      - '.github/workflows/**'
+      - 'config_example.json'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # prefer secrets; if you prefer .mcp_env keep blank and use file
+      MCP_GITHUB_TOKEN: ${{ secrets.MCP_GITHUB_TOKEN }}
+      GITHUB_EVAL_ORG: ${{ secrets.GITHUB_EVAL_ORG }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run verifier
+        run: |
+          # script will load .mcp_env if present, otherwise environment variables are used
+          python3 verify_release.py
+      - name: Upload report (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-report
+          path: mcpmark/release_verification/verification_report.txt
 
