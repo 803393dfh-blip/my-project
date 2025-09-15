@@ -1,4 +1,2 @@
-# .mcp_env.template
-# Rename to .mcp_env and fill in values locally (DO NOT commit real .mcp_env to public repos)
-MCP_GITHUB_TOKEN=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
-GITHUB_EVAL_ORG=803393dfh-blip
+GITHUB_TOKEN="your_github_personal_access_token"
+GITHUB_ORG="your_github_organization_or_username"
