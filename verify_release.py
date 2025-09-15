@@ -362,6 +362,8 @@ def run_verification(cfg: Dict) -> bool:
     merge_line = "merge method: not found  parents: 0"
     pr_number = None
     pr_title = ""
+    method_str = "not found"
+    parents = 0
     if pr:
         pr_number = pr.get("number")
         pr_title = pr.get("title", "").replace("\n", " ")
@@ -408,6 +410,18 @@ def run_verification(cfg: Dict) -> bool:
     out_dir = CONFIG.get("OUTPUT_DIR", "")
     if out_dir:
         _write_report(out_dir, lines)
+
+    # ---- 新增：当验证通过时在控制台打印验证信息（report 内容） ----
+    if overall_ok:
+        print("\n" + sep)
+        # success message from config (if any)
+        success_msg = CONFIG['VERIFICATION_FLOW_CONFIG'].get('success_message')
+        if success_msg:
+            print(success_msg)
+        # print the report lines to stdout
+        for line in lines:
+            print(line)
+        print(sep + "\n")
 
     return overall_ok
 
